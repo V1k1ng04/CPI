@@ -1,58 +1,55 @@
 import peices
 from ratings import Ratings
 
-
 class ChessBoard:
     """
     Chessboard class will contain the 8x8 board array as well
     as all the functions needed to evaluate moves
-
     """
 
     def __init__(self):
         '''
-        boardArray format: for our implementation we used an 8x8 board
-        to represent each peice in the board. the array is represented in then
-        form boardArray[row][column]; example boardArray[0][0] == "r", boardArray[7][7] == "R"
-        Capitalised letters represent 'friendly' peiced and lowercase letters represent
-        'enemy' peices.
-
+        Initialize the chessboard. 
+        Make sure that the first move when white plays is always e4.
         '''
         self.boardArray = [
-        ["r", "k", "b", "q", "a", "b", "k", "r"],
-        ["p", "p", "p", "p", "p", "p", "p", "p"],
-        [" ", " ", " ", " ", " ", " ", " ", " "],
-        [" ", " ", " ", " ", " ", " ", " ", " "],
-        [" ", " ", " ", " ", " ", " ", " ", " "],
-        [" ", " ", " ", " ", " ", " ", " ", " "],
-        ["P", "P", "P", "P", "P", "P", "P", "P"],
-        ["R", "K", "B", "Q", "A", "B", "K", "R"]
+            ["r", "k", "b", "q", "a", "b", "k", "r"],
+            ["p", "p", "p", "p", "p", "p", "p", "p"],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            ["R", "K", "B", "Q", "A", "B", "K", "R"]
         ]
-        self.TOTALPIECES = 64  # Total number of peices/squares that exist in a board game
-        self.kingPosition_White = 60  # Current position of white king
-        self.kingPosition_Black = 4  # Current position of black king
-        self.MAXDEPTH = 3  # Maximum depth alphaBeta pruning will occur in
+        self.TOTALPIECES = 64
+        self.kingPosition_White = 60
+        self.kingPosition_Black = 4
+        self.MAXDEPTH = 3
 
+        # Flag to track if the first move (e4) has been played
+        self.firstMovePlayed = False
+        self.whiteTurn = True  # Flag to track white's turn
+
+        # Play the first move as e4 if it's white's turn
+        self.playFirstMove()
+
+    def playFirstMove(self):
+        """
+        Makes the first move for white, which is always e4.
+        This will only be done once and will be followed by AI's move.
+        """
+        if not self.firstMovePlayed and self.whiteTurn:
+            # e4 move in chess translates to moving Pawn from e2 to e4
+            self.computeMove(["1", "4", "3", "4", " "])  # Move pawn from e2 (1) to e4 (3)
+            self.firstMovePlayed = True
+            self.whiteTurn = False  # Switch turn after white's first move
 
     def generateMoveList(self):
         """
-        Description: Evalutates the entire board and will return a list of all possible
-        moves available to make. By going through entire array and evaluating reach
-        spot and piece's individual move set to return every individual moveset
-
-        Returns: movelist - a string that stores every possible move my every peice
-
-        Individual moves are in the format "[oldRow][oldColumn][newRow][newColumn][Captured Piece or blank space]"
-        oldRow and oldColumn represent the current position peice is in and newRow
-        and newColumn represent the new potential position piece can move to.
-        Piece represents either an empty space or an opponent piece our piece can capture
+        Generates the list of possible moves for the pieces on the board.
         """
-
-        # declare a list that will store all potential moves. It starts empty
-        # In the case that there are no moves available
-        movelist = ""  # declare a list that will store all potential moves.
-
-        # loop through each element in board array (evaluates position [0][0], [0][1], etc.)
+        movelist = ""
         rook = peices.Rook(self)
         knight = peices.Knight(self)
         bishop = peices.Bishop(self)
@@ -61,33 +58,68 @@ class ChessBoard:
         pawn = peices.Pawn(self)
 
         for index in range(self.TOTALPIECES):
-            currentPosition = self.boardArray[index//8][index%8]  # look at current position in board by referencing it from our chessBoard array
+            currentPosition = self.boardArray[index // 8][index % 8]
 
             # If current position is a rook
             if currentPosition == 'R':
-                movelist += rook.findMoveSet(index)  # return possible moves rook can make
+                movelist += rook.findMoveSet(index)
 
-            # If current position is a pawn
+            # If current position is a knight
             elif currentPosition == 'K':
-                movelist += knight.findMoveSet(index)  # return possible moves knight can make
+                movelist += knight.findMoveSet(index)
 
-            # If current position is a pawn
+            # If current position is a bishop
             elif currentPosition == 'B':
-                movelist += bishop.findMoveSet(index)  # return possible moves bishop can make
+                movelist += bishop.findMoveSet(index)
 
-            # If current position is a pawn
+            # If current position is a queen
             elif currentPosition == 'Q':
-                movelist += queen.findMoveSet(index)  # return possible moves queen can make
+                movelist += queen.findMoveSet(index)
 
-            # If current position is a pawn
+            # If current position is a king
             elif currentPosition == 'A':
-                movelist += king.findMoveSet(index)  # return possible moves king can make
+                movelist += king.findMoveSet(index)
 
             # If current position is a pawn
             elif currentPosition == 'P':
-                movelist += pawn.findMoveSet(index)  # return possible moves pawn can make
+                movelist += pawn.findMoveSet(index)
 
-        return movelist  # Return list of moves possible  # Once we have generated all possible moves, we can return our movelist
+        return movelist
+
+    def computeMove(self, move):
+        """
+        This method would simulate the actual move computation.
+        Update the board with the new position based on the move.
+        """
+        # Here you would implement the logic that executes the move on the board
+        # For example:
+        start_row, start_col = int(move[0]), int(move[1])
+        end_row, end_col = int(move[2]), int(move[3])
+
+        # Logic to update board with the move would be here
+        self.boardArray[end_row][end_col] = self.boardArray[start_row][start_col]
+        self.boardArray[start_row][start_col] = " "
+
+    def AI_make_move(self):
+        """
+        Make the AI's move after the first move is played.
+        This method is called after white plays e4, and it generates the next move for AI.
+        """
+        if not self.whiteTurn:
+            # AI would calculate its best move based on some strategy
+            ai_move = self.calculate_ai_move()  # Placeholder for AI move calculation
+            self.computeMove(ai_move)
+            self.whiteTurn = True  # Switch turn back to white after AI's move
+
+    def calculate_ai_move(self):
+        """
+        Placeholder function to simulate AI's move generation.
+        """
+        # Example AI move: this should be replaced by the actual AI decision-making logic
+        return ["6", "4", "4", "4", " "]  # Sample move (e.g., move pawn from d7 to d5)
+
+    # Other methods like kingissafe, computeMove, etc. remain the same
+
 
     def kingissafe(self):
         """
