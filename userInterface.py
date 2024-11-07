@@ -324,7 +324,7 @@ class UserInterface:
         else:
             # Otherwise it is computers turn
             print("White's Turn")
-            self.computerMoves() # Computer makes first move
+             # Computer makes first move
             print("Black's Turn")
         # Call the event handler until user chooses to exit game
         while self.inPlay:
